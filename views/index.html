@@ -54,16 +54,17 @@
                     <th width="10%">文章类型</th>
                 </tr>
 
-
+                {{range .articles}}
                 <tr>
-                    <td>国足进球了</td>
-                    <td><a href="#">查看详情</a></td>
-                    <td> 2006-7-02 15:04:05</td>
-                    <td>3</td>
+                    <td>{{.Title}}</td>
+                    <td><a href="/ArticleContent?id={{.Id}}">查看详情</a></td>
+                    <td>{{.Time}}</td>
+                    <td>{{.Count}}</td>
                     <td><a href="#" class="dels">删除</a></td>
                     <td><a href="#">编辑</a></td>
                     <td>财经新闻</td>
                 </tr>
+                {{end}}
             </table>
 
             <ul class="pagenation">

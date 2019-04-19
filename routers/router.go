@@ -14,7 +14,9 @@ func init() {
 
 
     // 文章
-    beego.Router("/ShowArticle", &controllers.ArticleController{}, "get:ShowArticle")
+    beego.Router("/ShowArticle", &controllers.ArticleController{}, "get:ShowArticleList")
     // 添加文章
-    beego.Router("AddArticle", &controllers.ArticleController{}, "get:AddArticle;post:HandleArticle")
+    beego.Router("AddArticle", &controllers.ArticleController{}, "get:ShowAddArticle;post:HandleArticle")
+
+	beego.Router("/ArticleContent", &controllers.ArticleController{}, "get:ShowArticleContent")
 }

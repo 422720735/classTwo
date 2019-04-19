@@ -6,6 +6,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"path"
+	"strconv"
 	"time"
 )
 
@@ -14,13 +15,47 @@ type ArticleController struct {
 }
 
 // 显示文章
-func (this *ArticleController) ShowArticle() {
+func (this *ArticleController) ShowArticleList() {
+	// 查询
+	o := orm.NewOrm()
+	qs := o.QueryTable("Article")
+	var articles []models.Article
+	qs.All(&articles) // select * from Article
+	// 把数据传递给视图展示
+	this.Data["articles"] = articles
 	this.TplName = "index.html"
 }
 
 // 添加文章的显示
-func (this *ArticleController) AddArticle() {
+func (this *ArticleController) ShowAddArticle() {
 	this.TplName = "add.html"
+}
+
+func (this *ArticleController) ShowArticleContent() {
+	// 接受传递过来的id参数
+	id := this.GetString("id")
+	// 获取orm对象
+	o := orm.NewOrm()
+	// 获取查询对象
+
+	// 传递过来的id是字符串我们需要转行成int
+	// strconv包提供了简单数据类型之间的类型转换功能。可以将简单类型转换为字符串，也可以将字符串转换为其它简单类型。
+	// 字符串转int：Atoi()
+	// int转字符串: Itoa()
+	id2, _ := strconv.Atoi(id)
+	article := models.Article{Id: id2}
+	// 查询
+	err:=o.Read(&article)
+	if err != nil {
+		fmt.Println("查询数据为空")
+		return
+	}
+	// 改变我们的阅读数量
+	article.Count+=1
+	o.Update(&article)
+
+	this.Data["articles"] = article
+	this.TplName = "content.html"
 }
 
 // 添加文章的上传
