@@ -46,7 +46,7 @@ func (this *ArticleController) HandleArticle() {
 	//保存
 	this.SaveToFile("uploadname", "static/img/"+fileName+ext)
 	if err != nil {
-		fmt.Println("文件上传失败 ")
+		fmt.Println("文件上传失败!")
 	}
 	fmt.Println("===========插入数据=========")
 	// 插入数据
