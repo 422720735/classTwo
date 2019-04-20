@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
+	"math"
 	"path"
 	"strconv"
 	"time"
@@ -14,20 +15,80 @@ type ArticleController struct {
 	beego.Controller
 }
 
+// 处理下拉框提交请求
+func (this *ArticleController) HandleSelectArticle() {
+	// 接受数据
+	typeName := this.GetString("select")
+	if typeName == "" {
+		fmt.Println("不能为空")
+		return
+	}
+	o := orm.NewOrm()
+	// 查询数据
+	var articles []models.Article
+	// 根据id查询 过滤器查询 相当于 where                                                    // 表名__字段名            值
+	o.QueryTable("Article").RelatedSel("ArticleType").Filter("ArticleType__TypeName", typeName).All(&articles)
+
+}
+
 // 显示文章
 func (this *ArticleController) ShowArticleList() {
 	// 查询
 	o := orm.NewOrm()
 	qs := o.QueryTable("Article")
 	var articles []models.Article
-	qs.All(&articles) // select * from Article
+	// qs.All(&articles) // select * from Article
+	// 分页查询
+	pageIndex, err := strconv.Atoi(this.GetString("pageIndex"))
+	if err != nil {
+		pageIndex = 1
+	}
+	count, err := qs.Count()
+	pageSize := 2 // 每页显示多少条
+	start := pageSize * (pageIndex - 1)
+	qs.Limit(pageSize, start).All(&articles)
+	pageCount := math.Ceil(float64(count) / float64(pageSize))
+	if err != nil {
+		fmt.Println("查询失败")
+		return
+	}
+
+	FirstPage := false
+	LastPage := false
+	// 首页末页显示按钮到处理
+	if pageIndex == 1 {
+		FirstPage = true
+	}
+	if pageIndex == int(pageCount) {
+		LastPage = true
+	}
+
+	// 获取类型数据
+	var types []models.ArticleType
+	o.QueryTable("ArticleType").All(&types)
+
+	this.Data["types"] = types
+	this.Data["FirstPage"] = FirstPage
+	this.Data["LastPage"] = LastPage
 	// 把数据传递给视图展示
+	this.Data["count"] = count
+	this.Data["pageCount"] = pageCount
+	this.Data["pageIndex"] = pageIndex
+
 	this.Data["articles"] = articles
 	this.TplName = "index.html"
 }
 
 // 添加文章的显示
 func (this *ArticleController) ShowAddArticle() {
+	// 查询文章类型视图
+	o := orm.NewOrm()
+	var articleType []models.ArticleType
+	_, err := o.QueryTable("ArticleType").All(&articleType)
+	if err != nil {
+		fmt.Println("查询类型错误")
+	}
+	this.Data["types"] = articleType
 	this.TplName = "add.html"
 }
 
@@ -92,6 +153,21 @@ func (this *ArticleController) HandleArticle() {
 	article.Title = articleName
 	article.Content = content
 	article.Img = "static/img/" + fileName + ext
+
+	// 接受类型
+	typeName:=this.GetString("select")
+	if typeName == "" {
+		fmt.Println("下拉框数据错误")
+		return
+	}
+	var articeType models.ArticleType
+	articeType.TypeName = typeName
+	err = o.Read(&articeType, "TypeName")
+	if err != nil {
+		fmt.Println("获取数据类型失败 ")
+		return
+	}
+	article.NewsArticleType = &articeType
 	_, err = o.Insert(&article)
 	if err != nil {
 		fmt.Println("插入数据失败")
@@ -190,4 +266,46 @@ func (this *ArticleController) HandUpdateDetail() {
 		return
 	}
 	this.Redirect("/ShowArticle", 302)
+}
+
+// 显示文章类型
+func (this *ArticleController) ShowAddArticleType() {
+	// 查询文章类型视图
+	o := orm.NewOrm()
+	var articleType []models.ArticleType
+	_, err := o.QueryTable("ArticleType").All(&articleType)
+	if err != nil {
+		fmt.Println("查询类型错误")
+	}
+	this.Data["types"] = articleType
+	this.TplName = "addType.html"
+}
+
+// 添加文章类型
+func (this *ArticleController) HandAddArticleType() {
+	// 获取数据
+	typename := this.GetString("typeName")
+	// 判断数据
+	if typename == "" {
+		fmt.Println("数据是空，不能添加")
+		return
+	}
+	o := orm.NewOrm()
+	var articleType models.ArticleType
+	articleType.TypeName = typename
+	_, err := o.Insert(&articleType)
+	if err != nil {
+		fmt.Println("插入失败")
+		return
+	}
+	this.Redirect("/AddArticleType", 302)
+}
+
+// 删除文章
+func (this *ArticleController) HandleDeleteArticleType() {
+	id, _ := this.GetInt("id")
+	o := orm.NewOrm()
+	articleType := models.ArticleType{Id: id}
+	o.Delete(&articleType)
+	this.Redirect("/AddArticleType", 302)
 }

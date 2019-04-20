@@ -81,6 +81,5 @@ func (this *LoginController) HandleLogin() {
 		this.TplName = "login.html"
 		return
 	}
-
-	this.Ctx.WriteString("登陆成功")
+	this.Redirect("/ShowArticle", 302)
 }

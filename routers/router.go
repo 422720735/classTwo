@@ -6,21 +6,24 @@ import (
 )
 
 func init() {
-    //beego.Router("/", &controllers.MainController{})
-    // 注册
-    beego.Router("/register", &controllers.RegController{}, "get:ShowReg;post:HandleReg")
-    // 登陆
-    beego.Router("/", &controllers.LoginController{}, "get:ShowLogin;post:HandleLogin")
+	//beego.Router("/", &controllers.MainController{})
+	// 注册
+	beego.Router("/register", &controllers.RegController{}, "get:ShowReg;post:HandleReg")
+	// 登陆
+	beego.Router("/", &controllers.LoginController{}, "get:ShowLogin;post:HandleLogin")
 
-
-    // 文章
-    beego.Router("/ShowArticle", &controllers.ArticleController{}, "get:ShowArticleList")
-    // 添加文章
-    beego.Router("/AddArticle", &controllers.ArticleController{}, "get:ShowAddArticle;post:HandleArticle")
-    // 显示文章的详情
+	// 文章
+	beego.Router("/ShowArticle", &controllers.ArticleController{}, "get:ShowArticleList;post:HandleSelectArticle")
+	// 添加文章
+	beego.Router("/AddArticle", &controllers.ArticleController{}, "get:ShowAddArticle;post:HandleArticle")
+	// 显示文章的详情
 	beego.Router("/ArticleContent", &controllers.ArticleController{}, "get:ShowArticleContent")
-    // 删除文章
-    beego.Router("/DeleteArticle", &controllers.ArticleController{}, "get:HandleDelete")
-    // 编辑文章
-    beego.Router("/UpdateDetail", &controllers.ArticleController{}, "get:ShowUpdateDetail;post:HandUpdateDetail")
+	// 删除文章
+	beego.Router("/DeleteArticle", &controllers.ArticleController{}, "get:HandleDelete")
+	// 编辑文章
+	beego.Router("/UpdateDetail", &controllers.ArticleController{}, "get:ShowUpdateDetail;post:HandUpdateDetail")
+	// 文章类型
+	beego.Router("/AddArticleType", &controllers.ArticleController{}, "get:ShowAddArticleType;post:HandAddArticleType")
+	// 删除文章类型
+	beego.Router("/DeleteArticleType", &controllers.ArticleController{}, "get:HandleDeleteArticleType")
 }
