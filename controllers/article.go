@@ -27,7 +27,7 @@ func (this *ArticleController) HandleSelectArticle() {
 	// 查询数据
 	var articles []models.Article
 	// 根据id查询 过滤器查询 相当于 where                                                    // 表名__字段名            值
-	o.QueryTable("Article").RelatedSel("ArticleType").Filter("ArticleType__TypeName", typeName).All(&articles)
+	o.QueryTable("Article").RelatedSel("NewsArticleType").Filter("ArticleType__TypeName", typeName).All(&articles)
 
 }
 
@@ -43,10 +43,10 @@ func (this *ArticleController) ShowArticleList() {
 	if err != nil {
 		pageIndex = 1
 	}
-	count, err := qs.Count()
+	count, err := qs.RelatedSel("NewsArticleType").Count()
 	pageSize := 2 // 每页显示多少条
 	start := pageSize * (pageIndex - 1)
-	qs.Limit(pageSize, start).All(&articles)
+	qs.Limit(pageSize, start).RelatedSel("NewsArticleType").All(&articles)
 	pageCount := math.Ceil(float64(count) / float64(pageSize))
 	if err != nil {
 		fmt.Println("查询失败")
